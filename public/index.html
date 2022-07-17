@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pinger</title>
+  </head>
+  <script>
+    async function ping() {
+      const url = document.getElementById("url").value;
+      if (
+          /^((http(s?)?):\/\/)?([wW]{3}\.)?[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?\/?$/.test(
+              url
+              )
+              ) {
+          document.getElementById("feedback").innerHTML ="";
+        options = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              url: url,
+            }),
+          };
+        if (document.getElementById("check").checked)
+          var response = await fetch("/addFnP", options);
+          else
+          var response = await fetch("/ping", options);
+          var feedback = await response.text();
+          document.getElementById("feedback").innerHTML = feedback;
+      }
+    }
+  </script>
+  <body>
+    <h1>Pinger</h1>
+    <input type="text" placeholder="Enter the site" id="url" />
+    <br />
+    <br />
+    <input type="checkbox" id="check" />
+    <label>Ping this url regularly</label>
+    <br />
+    <br />
+    <button onclick="ping()">ping</button>
+    <label id="feedback"></p>
+  </body>
+</html>
