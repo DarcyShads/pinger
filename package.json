@@ -17,7 +17,8 @@
     "fs": "^0.0.1-security",
     "node-fetch": "^3.2.8",
     "node-schedule": "^2.1.0",
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "path": "^0.12.7"
   },
   "type": "module"
 }

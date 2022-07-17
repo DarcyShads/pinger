@@ -2,6 +2,9 @@ import Express from "express";
 import fs from "fs";
 import fetch from "node-fetch";
 import schedule from "node-schedule";
+import path from "path";
+
+const __dirname = path.resolve();
 
 const app = Express();
 
@@ -46,9 +49,12 @@ async function pingAll() {
     .trim()
     .split("\n")
     .map((x) => x.trim());
-  for (url of urls) {
-    await pingUrl(url);
+  console.log(`Ping Starts ${new Date(Date.now())}`);
+  for (const u of urls) {
+    const status = await pingUrl(u);
+    console.log(`${u} : ${status}`);
   }
+  console.log("----------------------------------------------------");
 }
 
 const port = process.env.PORT || 8000;
@@ -67,6 +73,21 @@ app.post("/ping", async function (req, res) {
   const url = req.body.url;
   const status = await pingUrl(url);
   res.send(status);
+});
+
+app.get("/getURLS", (req, res) => {
+  res.json({
+    files: fs
+      .readFileSync("toPing")
+      .toString()
+      .trim()
+      .split("\n")
+      .map((x) => x.trim()),
+  });
+});
+
+app.get("/view", (req, res) => {
+  res.sendFile(__dirname + "/public/view.html");
 });
 
 const rule = new schedule.RecurrenceRule();
