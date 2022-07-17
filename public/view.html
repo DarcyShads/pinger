@@ -6,20 +6,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Viewer</title>
   </head>
+  <style>
+    button {
+      margin-left: 20px;
+      margin-bottom: 10px;
+    }
+  </style>
   <script>
+    async function removeUrl(url) {
+      const response = await fetch("/delurl", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: url,
+        }),
+      });
+      const data = await response.text();
+      setFileName();
+      return data;
+    }
+
     async function setFileName() {
       const response = await fetch("/getURLS");
       const fileNames = await response.json();
       const fileList = fileNames.files;
       const fileListElements = document.getElementById("fileList");
+      fileListElements.innerHTML = "";
       const ul = document.createElement("ul");
       for (f of fileList) {
-        const li = document.createElement("li");
-        const a = document.createElement("a");
-        a.href = f;
-        a.innerHTML = f;
-        li.appendChild(a);
-        ul.appendChild(li);
+        if (f.trim() != "") {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = f;
+          a.innerHTML = f;
+          a.target = "_blank";
+          li.appendChild(a);
+          const del = document.createElement("button");
+          del.innerHTML = "Delete";
+          del.onclick = async () => {
+            const status = await removeUrl(f);
+            console.log(status);
+          };
+          li.appendChild(del);
+          ul.appendChild(li);
+        }
       }
       fileListElements.appendChild(ul);
     }

@@ -51,8 +51,10 @@ async function pingAll() {
     .map((x) => x.trim());
   console.log(`Ping Starts ${new Date(Date.now())}`);
   for (const u of urls) {
-    const status = await pingUrl(u);
-    console.log(`${u} : ${status}`);
+    if (u.trim != "") {
+      const status = await pingUrl(u);
+      console.log(`${u} : ${status}`);
+    }
   }
   console.log("----------------------------------------------------");
 }
@@ -73,6 +75,24 @@ app.post("/ping", async function (req, res) {
   const url = req.body.url;
   const status = await pingUrl(url);
   res.send(status);
+});
+
+app.post("/delurl", async function (req, res) {
+  try {
+    const url = req.body.url;
+    const list = fs
+      .readFileSync("toPing")
+      .toString()
+      .trim()
+      .split("\n")
+      .map((x) => x.trim())
+      .filter((x) => x != url);
+    fs.writeFileSync("toPing", list.join("\n") + "\n");
+
+    res.send("success");
+  } catch (e) {
+    res.send("error");
+  }
 });
 
 app.get("/getURLS", (req, res) => {
