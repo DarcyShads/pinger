@@ -106,36 +106,46 @@ app.get("/authenticate", async function (req, res) {
 });
 
 app.post("/delurl", async function (req, res) {
-  try {
-    const url = req.body.url;
-    const list = fs
-      .readFileSync("toPing")
-      .toString()
-      .trim()
-      .split("\n")
-      .map((x) => x.trim())
-      .filter((x) => x != url);
-    fs.writeFileSync("toPing", list.join("\n") + "\n");
+  if (auth == "true") {
+    try {
+      const url = req.body.url;
+      const list = fs
+        .readFileSync("toPing")
+        .toString()
+        .trim()
+        .split("\n")
+        .map((x) => x.trim())
+        .filter((x) => x != url);
+      fs.writeFileSync("toPing", list.join("\n") + "\n");
 
-    res.send("success");
-  } catch (e) {
-    res.send("error");
-  }
+      res.send("success");
+    } catch (e) {
+      res.send("error");
+    }
+  } else res.end("unauthorized");
 });
 
 app.get("/getURLS", (req, res) => {
-  res.json({
-    files: fs
-      .readFileSync("toPing")
-      .toString()
-      .trim()
-      .split("\n")
-      .map((x) => x.trim()),
-  });
+  if (auth == "true") {
+    res.json({
+      files: fs
+        .readFileSync("toPing")
+        .toString()
+        .trim()
+        .split("\n")
+        .map((x) => x.trim()),
+    });
+  } else {
+    res.end("unauthorized");
+  }
 });
 
 app.get("/view", (req, res) => {
-  res.sendFile(__dirname + "/public/view.html");
+  if (auth == "true") {
+    res.sendFile(__dirname + "/public/view.html");
+  } else {
+    res.end("unauthorized");
+  }
 });
 
 const rule = new schedule.RecurrenceRule();
