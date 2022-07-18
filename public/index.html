@@ -1,40 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pinger</title>
-  </head>
-  <script>
-    async function ping() {
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pinger</title>
+</head>
+<style>
+  button {
+    margin-left: 20px;
+    margin-bottom: 10px;
+  }
+
+  #url-container {
+    display: none;
+  }
+</style>
+<script>
+  async function authenticate() {
+    data = document.getElementById("password").value;
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        password: data,
+      }),
+    };
+    const response = await fetch("/authenticate", options);
+    const feedback = await response.text();
+    if (feedback == "true") {
+      document.getElementById("password").value = "Authenticated";
+      document.getElementById("password").disabled = true;
+            document.getElementById("authenticate").innerHTML = "Logout";
+      document.getElementById("authenticate").onclick = logout;
+      document.getElementById("url-container").style.display = "block";
+    }
+
+  }
+
+  async function logout() {
+    const response = await fetch("/logout");
+    const feedback = await response.text();
+    if (feedback == "success") {
+       document.getElementById("password").value = "";
+      document.getElementById("password").disabled = false;
+document.getElementById("authenticate").innerHTML = "Authenticate";
+      document.getElementById("authenticate").onclick = authenticate;
+      document.getElementById("url-container").style.display = "none";
+    }
+  }
+
+  async function ping() {
+    const res = await fetch("/authenticate");
+    const auth = await res.text();
+    if (auth == "true") {
       const url = document.getElementById("url").value;
       if (
-          /^((http(s?)?):\/\/)?([wW]{3}\.)?[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?\/?$/.test(
-              url
-              )
-              ) {
-          document.getElementById("feedback").innerHTML ="";
+        /^((http(s?)?):\/\/)?([wW]{3}\.)?[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?\/?$/.test(
+          url
+        )
+      ) {
+        document.getElementById("feedback").innerHTML = "";
         options = {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              url: url,
-            }),
-          };
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            url: url,
+          }),
+        };
         if (document.getElementById("check").checked)
           var response = await fetch("/addFnP", options);
-          else
+        else
           var response = await fetch("/ping", options);
-          var feedback = await response.text();
-          document.getElementById("feedback").innerHTML = feedback;
+        var feedback = await response.text();
+        document.getElementById("feedback").innerHTML = feedback;
       }
     }
-  </script>
-  <body>
-    <h1>Pinger</h1>
+  }
+</script>
+
+<body>
+  <h1>Pinger</h1>
+  <input type="text" placeholder="Enter password" id="password">
+  <button id="authenticate" onclick="authenticate()">Authenticate</button>
+  <div id="url-container">
+
     <input type="text" placeholder="Enter the site" id="url" />
     <br />
     <br />
@@ -47,5 +102,7 @@
       <button>View Files</button>
     </a>
     <label id="feedback"></p>
-  </body>
+  </div>
+</body>
+
 </html>

@@ -3,12 +3,14 @@ import fs from "fs";
 import fetch from "node-fetch";
 import schedule from "node-schedule";
 import path from "path";
+import "dotenv/config";
 
 const __dirname = path.resolve();
 
 const app = Express();
 
-app.use(Express.static("public"));
+var auth = "false";
+
 app.use(Express.json());
 
 async function addUrlToFile(url) {
@@ -65,6 +67,11 @@ app.listen(port, function () {
   console.log(`listening on port ${port}`);
 });
 
+app.get("/", function (req, res) {
+  auth = "false";
+  res.sendFile(__dirname + "/public/index.html");
+});
+
 app.post("/addFnP", async function (req, res) {
   const url = req.body.url;
   const status = await addUrlToFile(url);
@@ -75,6 +82,27 @@ app.post("/ping", async function (req, res) {
   const url = req.body.url;
   const status = await pingUrl(url);
   res.send(status);
+});
+
+app.post("/authenticate", async function (req, res) {
+  const password = req.body.password;
+  if (password == process.env.PASSWORD) {
+    auth = "true";
+  }
+  res.send(auth);
+});
+
+app.get("/logout", function (req, res) {
+  try {
+    auth = "false";
+    res.send("success");
+  } catch (e) {
+    res.send("error");
+  }
+});
+
+app.get("/authenticate", async function (req, res) {
+  res.send(auth);
 });
 
 app.post("/delurl", async function (req, res) {
@@ -111,7 +139,7 @@ app.get("/view", (req, res) => {
 });
 
 const rule = new schedule.RecurrenceRule();
-rule.dayOfWeek = [new schedule.Range(0, 6)];
+rule.dayOfWeek = [0, 6];
 rule.minute = [0, 20, 40];
 const newsJob = schedule.scheduleJob(rule, pingAll);
 newsJob.tz = "Asia/Kolkata";
