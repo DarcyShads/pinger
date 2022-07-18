@@ -139,7 +139,6 @@ app.get("/view", (req, res) => {
 });
 
 const rule = new schedule.RecurrenceRule();
-rule.dayOfWeek = [0, 6];
 rule.minute = [0, 20, 40];
 const newsJob = schedule.scheduleJob(rule, pingAll);
 newsJob.tz = "Asia/Kolkata";
